@@ -1,0 +1,10 @@
+version: "3"
+
+services:
+  solana:
+    build: .
+    container_name: solana-tip-jar
+    volumes:
+      - .:/app
+    stdin_open: true
+    tty: true
