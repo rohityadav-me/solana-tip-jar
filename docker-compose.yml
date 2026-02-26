@@ -6,5 +6,7 @@ services:
     container_name: solana-tip-jar
     volumes:
       - .:/app
+    ports:
+      - "3000:3000"
     stdin_open: true
     tty: true
