@@ -4,9 +4,13 @@ services:
     container_name: solana-tip-jar
     volumes:
       - .:/app
+      - solana-config:/root/.config/solana   # ← add this for wallet persistence  
     ports:
       - "3000:3000"
     stdin_open: true
     tty: true
     working_dir: /app/tip-jar/app/frontend
     command: npm run dev
+
+volumes:               # ← add this section at the bottom
+  solana-config:
