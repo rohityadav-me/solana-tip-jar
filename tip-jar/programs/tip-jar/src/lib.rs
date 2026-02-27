@@ -1,39 +1,31 @@
 use anchor_lang::prelude::*;
-use anchor_lang::system_program;
 
-declare_id!("9AkGzJbivNLB87RKowSx2PRj5nYJGDCxGdkMyVAu9vqX");
+declare_id!("A1qE6kdjYwk9bTHXeaAJrUYMYJUuuLJhypC1LWMLmBhW");
 
 #[program]
 pub mod tip_jar {
-    use super::*;
+   use super::*;
 
-    pub fn send_tip(
-        ctx: Context<SendTip>,
-        amount: u64,
-        message: String,
-    ) -> Result<()> {
-
-        let tip_account = &mut ctx.accounts.tip_account;
+    pub fn send_tip(ctx: Context<SendTip>, amount: u64) -> Result<()> {
+        let tip = &mut ctx.accounts.tip;
+        tip.sender = ctx.accounts.from.key();
+        tip.recipient = ctx.accounts.to.key();
+        tip.amount = amount;
+        tip.timestamp = Clock::get()?.unix_timestamp;
 
         // Transfer SOL
-        let transfer_instruction = system_program::Transfer {
-            from: ctx.accounts.tipper.to_account_info(),
-            to: ctx.accounts.recipient.to_account_info(),
-        };
-
-        let cpi_ctx = CpiContext::new(
-            ctx.accounts.system_program.to_account_info(),
-            transfer_instruction,
+        let ix = anchor_lang::solana_program::system_instruction::transfer(
+            &ctx.accounts.from.key(),
+            &ctx.accounts.to.key(),
+            amount,
         );
-
-        system_program::transfer(cpi_ctx, amount)?;
-
-        // Update PDA data
-        tip_account.recipient = ctx.accounts.recipient.key();
-        tip_account.total_tips += amount;
-        tip_account.tip_count += 1;
-        tip_account.last_message = message;
-        tip_account.last_tipper = ctx.accounts.tipper.key();
+        anchor_lang::solana_program::program::invoke(
+            &ix,
+            &[
+                ctx.accounts.from.to_account_info(),
+                ctx.accounts.to.to_account_info(),
+            ],
+        )?;
 
         Ok(())
     }
@@ -41,39 +33,33 @@ pub mod tip_jar {
 
 #[derive(Accounts)]
 pub struct SendTip<'info> {
+    #[account(mut)]
+    pub from: Signer<'info>,
 
     #[account(mut)]
-    pub tipper: Signer<'info>,
-
-    /// CHECK: safe
-    #[account(mut)]
-    pub recipient: AccountInfo<'info>,
+    pub to: SystemAccount<'info>,
 
     #[account(
-        init_if_needed,
-        payer = tipper,
-        space = 8 + TipAccount::INIT_SPACE,
-        seeds = [b"tip", recipient.key().as_ref()],
+        init,
+        payer = from,
+        space = 8 + Tip::INIT_SPACE,
+        seeds = [
+            b"tip",
+            from.key().as_ref(),
+            to.key().as_ref(),
+        ],
         bump
     )]
-    pub tip_account: Account<'info, TipAccount>,
+    pub tip: Account<'info, Tip>,
 
     pub system_program: Program<'info, System>,
 }
 
 #[account]
 #[derive(InitSpace)]
-pub struct TipAccount {
-
+pub struct Tip {
+    pub sender: Pubkey,
     pub recipient: Pubkey,
-
-    pub total_tips: u64,
-
-    pub tip_count: u64,
-
-    #[max_len(200)]
-    pub last_message: String,
-
-    pub last_tipper: Pubkey,
+    pub amount: u64,
+    pub timestamp: i64,
 }
-

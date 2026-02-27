@@ -6,7 +6,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-tip_jar = "9AkGzJbivNLB87RKowSx2PRj5nYJGDCxGdkMyVAu9vqX"
+tip_jar = "A1qE6kdjYwk9bTHXeaAJrUYMYJUuuLJhypC1LWMLmBhW"
 
 [registry]
 url = "https://api.apr.dev"
