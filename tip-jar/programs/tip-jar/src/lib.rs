@@ -40,7 +40,7 @@ pub struct SendTip<'info> {
     pub to: SystemAccount<'info>,
 
     #[account(
-        init,
+        init_if_needed,
         payer = from,
         space = 8 + Tip::INIT_SPACE,
         seeds = [
