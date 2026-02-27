@@ -12,7 +12,7 @@ A decentralized application built on Solana that allows users to send micro-tips
 • Fully deployed on Solana Devnet  
 
 ## Live Demo
-https://solana-tip-jar-frontend-kcp1mwbnj-rohityadav-mes-projects.vercel.app/
+https://solana-tip-jar-frontend.vercel.app/
 
 ## GitHub
 
