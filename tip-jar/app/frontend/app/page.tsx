@@ -5,6 +5,7 @@ import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import * as anchor from "@coral-xyz/anchor";
 import { getProgram } from "@/lib/program";
+import type { TipJar } from "../src/anchor-types/tip_jar";
 
 import {
   PublicKey,
@@ -22,11 +23,12 @@ export default function Home() {
   const [amount, setAmount] = useState("0.01");
   const [tips, setTips] = useState<any[]>([]);
 
+
 const fetchTips = async () => {
   if (!publicKey) return;
 
   try {
-    const program = getProgram(connection, wallet);
+    const program = getProgram(connection, wallet) as any;
 
     const tipsData =
       await program.account.tip.all();
@@ -51,7 +53,7 @@ const fetchTips = async () => {
     const recipient = new PublicKey(recipientAddress);
     const lamports = Math.floor(parseFloat(amount) * LAMPORTS_PER_SOL); // better to floor to avoid fractional lamports
 
-    const program = getProgram(connection, wallet);
+    const program = getProgram(connection, wallet) as any;
 
     // PDA seeds MUST match the program's #[account(seeds = ...)]
     const [tipPda] = PublicKey.findProgramAddressSync(
